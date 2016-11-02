@@ -739,23 +739,30 @@ GLKIT_EXPORT GLKMatrix3 GLKMatrix4GetMatrix3(GLKMatrix4 m) {
    @Notes Only works on orthonormal transforms.
 */
 GLKIT_EXPORT GLKMatrix3 GLKMatrix3Invert(GLKMatrix3 m, BOOL* isInvertible) {
-    UNIMPLEMENTED();
+   float determinant = (m.m00 * (m.m11 * m.m22 - m.m12 * m.m21)) +
+    (m.m01 * (m.m12 * m.m20 - m.m22 * m.m10)) +
+    (m.m02 * (m.m10 * m.m21 - m.m11 * m.m20));
+    
+	bool canInvert = determinant != 0.0f;
 
+    if (!canInvert) {
+        return GLKMatrix3Identity;
+    }
+	
     // This is only going to work in very limited circumstances.
     // (ie, m is an orthonormal transform).
     if (isInvertible) {
         *isInvertible = true;
     }
-    return GLKMatrix3Transpose(m);
+
+   return GLKMatrix3Scale(GLKMatrix3Transpose(m), determinant, determinant, determinant);
 }
 
 /**
-   @Status Stub
+   @Status Caveat
    @Notes Only works on orthonormal transforms.
 */
 GLKIT_EXPORT GLKMatrix3 GLKMatrix3InvertAndTranspose(GLKMatrix3 m, BOOL* isInvertible) {
-    UNIMPLEMENTED();
-
     m = GLKMatrix3Invert(m, isInvertible);
     return GLKMatrix3Transpose(m);
 }
@@ -1134,21 +1141,42 @@ GLKIT_EXPORT GLKQuaternion GLKQuaternionMakeWithMatrix4(GLKMatrix4 mat) {
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKVector3 GLKMathProject(GLKVector3 object, GLKMatrix4 model, GLKMatrix4 projection, int* viewport) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    
+	GLKVector3 v = GLKMatrix4MultiplyVector3(GLKMatrix4Multiply(model, projection), object);
+    
+    float x = viewport[0] + ((viewport[2] * (v.x + 1.0f)) / 2.0f);
+    float y = viewport[1] + ((viewport[3] * (v.y + 1.0f)) / 2.0f);
+    float z = (v.z + 1.0f) / 2.0f;
+    return GLKVector3Make(x, y, z);
 }
 
 /**
- @Status Stub
+ @Status Caveat
  @Notes
 */
 GLKVector3 GLKMathUnproject(GLKVector3 window, GLKMatrix4 model, GLKMatrix4 projection, int* viewport, bool* success) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    BOOL canInvert = NO;
+
+	 GLKMatrix4 inverted = GLKMatrix4Invert(GLKMatrix4Multiply(projection, model), &canInvert);
+	 if (success) {
+        *success = canInvert;
+	}
+    
+    if (!canInvert) {
+        return GLKVector3Make(0.0f, 0.0f, 0.0f);
+    }
+    
+    float x = ((2.0f * window.x - viewport[0]) / viewport[2]) - 1.0f;
+    float y = ((2.0f * window.y - viewport[1]) / viewport[3]) - 1.0f;
+    float z = (2.0f * window.z) - 1.0f;
+
+    GLKVector4 unproject4 = GLKMatrix4MultiplyVector4(inverted, GLKVector4Make(x, y, z, 1.0f));
+
+    return GLKVector3Make(unproject4.x, unproject4.y, unproject4.z);
 }
 
 /**
@@ -1156,53 +1184,53 @@ GLKVector3 GLKMathUnproject(GLKVector3 window, GLKMatrix4 model, GLKMatrix4 proj
  @Notes
 */
 NSString* NSStringFromGLKMatrix2(GLKMatrix2 matrix) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    return [NSString stringWithFormat:@"{{%f, %f}, {%f, %f}}", matrix.m00, matrix.m01,
+            matrix.m10, matrix.m11];
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 NSString* NSStringFromGLKMatrix3(GLKMatrix3 matrix) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    return [NSString stringWithFormat:@"{{%f, %f, %f}, {%f, %f, %f}, {%f, %f, %f}}", matrix.m00, matrix.m01, matrix.m02,
+            matrix.m10, matrix.m11, matrix.m12,
+            matrix.m20, matrix.m21, matrix.m22];
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 NSString* NSStringFromGLKMatrix4(GLKMatrix4 matrix) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    return [NSString stringWithFormat:@"{{%f, %f, %f, %f}, {%f, %f, %f, %f}, {%f, %f, %f, %f}, {%f, %f, %f, %f}}", matrix.m00, matrix.m01, matrix.m02, matrix.m03,
+            matrix.m10, matrix.m11, matrix.m12,matrix.m13,
+            matrix.m20, matrix.m21, matrix.m22, matrix.m23,
+            matrix.m30, matrix.m31, matrix.m32, matrix.m33];
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 NSString* NSStringFromGLKVector2(GLKVector2 vector) {
-    UNIMPLEMENTED();
-    return StubReturn();
+   return [NSString stringWithFormat:@"{%f, %f}", vector.x, vector.y];
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 NSString* NSStringFromGLKVector3(GLKVector3 vector) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    return [NSString stringWithFormat:@"{%f, %f, %f}", vector.x,vector.y, vector.z];
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 NSString* NSStringFromGLKVector4(GLKVector4 vector) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    return [NSString stringWithFormat:@"{%f, %f, %f, %f}", vector.x, vector.y, vector.z, vector.w];
 }
 
 /**
@@ -1215,21 +1243,66 @@ NSString* NSStringFromGLKQuaternion(GLKQuaternion quaternion) {
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKMatrix3 GLKMatrix3MakeWithQuaternion(GLKQuaternion quaternion) {
-    UNIMPLEMENTED();
-    return StubReturn();
+
+   quaternion = GLKQuaternionNormalize(quaternion);
+
+    float x = quaternion.q[0];
+
+    float y = quaternion.q[1];
+
+    float z = quaternion.q[2];
+
+    float w = quaternion.q[3];
+
+    float _2x = x + x;
+
+    float _2y = y + y;
+
+    float _2z = z + z;
+
+    float _2w = w + w;
+
+    GLKMatrix3 m = { 1.0f - _2y * y - _2z * z,
+
+                    _2x * y + _2w * z,
+
+                    _2x * z - _2w * y,
+
+                    _2x * y - _2w * z,
+
+                    1.0f - _2x * x - _2z * z,
+
+                    _2y * z + _2w * x,
+
+
+                    _2x * z + _2w * y,
+
+                    _2y * z - _2w * x,
+
+                    1.0f - _2x * x - _2y * y };
+    
+
+    return m;
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKMatrix3 GLKMatrix3MakeScale(float sx, float sy, float sz) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    GLKMatrix3 m = GLKMatrix3Identity;
+
+    m.m[0] = sx;
+
+    m.m[4] = sy;
+
+    m.m[8] = sz;
+
+    return m;
 }
 
 /**
@@ -1287,12 +1360,34 @@ GLKMatrix3 GLKMatrix3InvertAndTranspose(GLKMatrix3 matrix, bool* isInvertible) {
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKMatrix3 GLKMatrix3Multiply(GLKMatrix3 matrixLeft, GLKMatrix3 matrixRight) {
-    UNIMPLEMENTED();
-    return StubReturn();
+     GLKMatrix3 m;
+
+    m.m00 = matrixLeft.m00 * matrixRight.m00 + matrixLeft.m10 * matrixRight.m01 + matrixLeft.m20 * matrixRight.m02;
+
+    m.m10 = matrixLeft.m00 * matrixRight.m10 + matrixLeft.m10 * matrixRight.m11 + matrixLeft.m20 * matrixRight.m12;
+
+    m.m20 = matrixLeft.m00 * matrixRight.m20 + matrixLeft.m10 * matrixRight.m21 + matrixLeft.m20 * matrixRight.m22;
+    
+
+    m.m01 = matrixLeft.m01 * matrixRight.m00 + matrixLeft.m11 * matrixRight.m01 + matrixLeft.m21 * matrixRight.m02;
+
+    m.m11 = matrixLeft.m01 * matrixRight.m10 + matrixLeft.m11 * matrixRight.m11 + matrixLeft.m21 * matrixRight.m12;
+
+    m.m21 = matrixLeft.m01 * matrixRight.m20 + matrixLeft.m11 * matrixRight.m21 + matrixLeft.m21 * matrixRight.m22;
+    
+
+    m.m02 = matrixLeft.m02 * matrixRight.m00 + matrixLeft.m12 * matrixRight.m01 + matrixLeft.m22 * matrixRight.m02;
+
+    m.m12 = matrixLeft.m02 * matrixRight.m10 + matrixLeft.m12 * matrixRight.m11 + matrixLeft.m22 * matrixRight.m12;
+
+    m.m22 = matrixLeft.m02 * matrixRight.m20 + matrixLeft.m12 * matrixRight.m21 + matrixLeft.m22 * matrixRight.m22;
+
+
+    return m;
 }
 
 /**
@@ -1350,12 +1445,14 @@ GLKMatrix3 GLKMatrix3RotateZ(GLKMatrix3 matrix, float radians) {
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKMatrix3 GLKMatrix3Scale(GLKMatrix3 matrix, float sx, float sy, float sz) {
-    UNIMPLEMENTED();
-    return StubReturn();
+     GLKMatrix3 m = { matrix.m00 * sx, matrix.m01 * sx, matrix.m02 * sx,
+        matrix.m10 * sy, matrix.m11 * sy, matrix.m12 * sy,
+        matrix.m20 * sz, matrix.m21 * sz, matrix.m22 * sz };
+    return m;
 }
 
 /**
@@ -1403,21 +1500,50 @@ void GLKMatrix3MultiplyVector3Array(GLKMatrix3 matrix, GLKVector3* vectors, size
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKMatrix4 GLKMatrix4MakeWithQuaternion(GLKQuaternion quaternion) {
-    UNIMPLEMENTED();
-    return StubReturn();
+
+   GLKQuaternion quaternionNormalized = GLKQuaternionNormalize(quaternion);
+    
+    float x = quaternionNormalized.q[0];
+    float y = quaternionNormalized.q[1];
+    float z = quaternionNormalized.q[2];
+    float w = quaternionNormalized.q[3];
+    
+    float _2x = x + x;
+    float _2y = y + y;
+    float _2z = z + z;
+    float _2w = w + w;
+    
+    GLKMatrix4 m = { 1.0f - _2y * y - _2z * z,
+        _2x * y + _2w * z,
+        _2x * z - _2w * y,
+        0.0f,
+        _2x * y - _2w * z,
+        1.0f - _2x * x - _2z * z,
+        _2y * z + _2w * x,
+        0.0f,
+        _2x * z + _2w * y,
+        _2y * z - _2w * x,
+        1.0f - _2x * x - _2y * y,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        1.0f };
+    
+    return m;
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKVector4 GLKMatrix4GetColumn(GLKMatrix4 matrix, int column) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    GLKVector4 v = { matrix.m[column * 4 + 0], matrix.m[column * 4 + 1], matrix.m[column * 4 + 2], matrix.m[column * 4 + 3] };
+    return v;
 }
 
 /**
@@ -1430,12 +1556,16 @@ GLKVector4 GLKMatrix4GetRow(GLKMatrix4 matrix, int row) {
 }
 
 /**
- @Status Stub
- @Notes
+ @Status Caveat
+ @Notes  Valid column values range from 0 to 3, inclusive.
 */
 GLKMatrix4 GLKMatrix4SetColumn(GLKMatrix4 matrix, int column, GLKVector4 vector) {
-    UNIMPLEMENTED();
-    return StubReturn();
+   matrix.m[column * 4 + 0] = vector.x;
+   matrix.m[column * 4 + 1] = vector.y;
+   matrix.m[column * 4 + 2] = vector.z;
+   matrix.m[column * 4 + 3] = vector.w;
+   
+   return matrix;
 }
 
 /**
@@ -1457,21 +1587,21 @@ GLKMatrix4 GLKMatrix4InvertAndTranspose(GLKMatrix4 matrix, bool* isInvertible) {
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKMatrix4 GLKMatrix4RotateWithVector3(GLKMatrix4 matrix, float radians, GLKVector3 axisVector) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    GLKMatrix4 rm = GLKMatrix4MakeRotation(radians, axisVector.v[0], axisVector.v[1], axisVector.v[2]);
+    return GLKMatrix4Multiply(matrix, rm);
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKMatrix4 GLKMatrix4RotateWithVector4(GLKMatrix4 matrix, float radians, GLKVector4 axisVector) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    GLKMatrix4 rm = GLKMatrix4MakeRotation(radians, axisVector.v[0], axisVector.v[1], axisVector.v[2]);
+    return GLKMatrix4Multiply(matrix, rm); 
 }
 
 /**
@@ -1493,12 +1623,18 @@ GLKMatrix4 GLKMatrix4ScaleWithVector4(GLKMatrix4 matrix, GLKVector4 scaleVector)
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKMatrix4 GLKMatrix4TranslateWithVector3(GLKMatrix4 matrix, GLKVector3 translationVector) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    GLKMatrix4 m = { matrix.m00, matrix.m01, matrix.m02, matrix.m03,
+		matrix.m10, matrix.m11, matrix.m12, matrix.m13,
+		matrix.m20, matrix.m21, matrix.m22, matrix.m23,
+		matrix.m00 * translationVector.x + matrix.m10 * translationVector.y + matrix.m20 * translationVector.z + matrix.m30,
+		matrix.m01 * translationVector.x + matrix.m11 * translationVector.y + matrix.m21 * translationVector.z + matrix.m31,
+		matrix.m02 * translationVector.x + matrix.m12 * translationVector.y + matrix.m22 * translationVector.z + matrix.m32,
+		matrix.m03 * translationVector.x + matrix.m13 * translationVector.y + matrix.m23 * translationVector.z + matrix.m33 };
+	return m;
 }
 
 /**
@@ -1511,21 +1647,78 @@ GLKMatrix4 GLKMatrix4TranslateWithVector4(GLKMatrix4 matrix, GLKVector4 translat
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKMatrix4 GLKMatrix4Add(GLKMatrix4 matrixLeft, GLKMatrix4 matrixRight) {
-    UNIMPLEMENTED();
-    return StubReturn();
+
+    GLKMatrix4 m;
+
+    m.m[0] = matrixLeft.m[0] + matrixRight.m[0];
+
+    m.m[1] = matrixLeft.m[1] + matrixRight.m[1];
+
+    m.m[2] = matrixLeft.m[2] + matrixRight.m[2];
+
+    m.m[3] = matrixLeft.m[3] + matrixRight.m[3];
+
+    m.m[4] = matrixLeft.m[4] + matrixRight.m[4];
+
+    m.m[5] = matrixLeft.m[5] + matrixRight.m[5];
+
+    m.m[6] = matrixLeft.m[6] + matrixRight.m[6];
+
+    m.m[7] = matrixLeft.m[7] + matrixRight.m[7];
+
+
+    m.m[8] = matrixLeft.m[8] + matrixRight.m[8];
+
+    m.m[9] = matrixLeft.m[9] + matrixRight.m[9];
+
+    m.m[10] = matrixLeft.m[10] + matrixRight.m[10];
+
+    m.m[11] = matrixLeft.m[11] + matrixRight.m[11];
+
+
+    m.m[12] = matrixLeft.m[12] + matrixRight.m[12];
+
+    m.m[13] = matrixLeft.m[13] + matrixRight.m[13];
+
+    m.m[14] = matrixLeft.m[14] + matrixRight.m[14];
+
+    m.m[15] = matrixLeft.m[15] + matrixRight.m[15];
+
+    return m;
 }
 
 /**
- @Status Stub
+ @Status Interoperable
  @Notes
 */
 GLKMatrix4 GLKMatrix4Subtract(GLKMatrix4 matrixLeft, GLKMatrix4 matrixRight) {
-    UNIMPLEMENTED();
-    return StubReturn();
+ GLKMatrix4 m;
+    
+    m.m[0] = matrixLeft.m[0] - matrixRight.m[0];
+    m.m[1] = matrixLeft.m[1] - matrixRight.m[1];
+    m.m[2] = matrixLeft.m[2] - matrixRight.m[2];
+    m.m[3] = matrixLeft.m[3] - matrixRight.m[3];
+    
+    m.m[4] = matrixLeft.m[4] - matrixRight.m[4];
+    m.m[5] = matrixLeft.m[5] - matrixRight.m[5];
+    m.m[6] = matrixLeft.m[6] - matrixRight.m[6];
+    m.m[7] = matrixLeft.m[7] - matrixRight.m[7];
+    
+    m.m[8] = matrixLeft.m[8] - matrixRight.m[8];
+    m.m[9] = matrixLeft.m[9] - matrixRight.m[9];
+    m.m[10] = matrixLeft.m[10] - matrixRight.m[10];
+    m.m[11] = matrixLeft.m[11] - matrixRight.m[11];
+    
+    m.m[12] = matrixLeft.m[12] - matrixRight.m[12];
+    m.m[13] = matrixLeft.m[13] - matrixRight.m[13];
+    m.m[14] = matrixLeft.m[14] - matrixRight.m[14];
+    m.m[15] = matrixLeft.m[15] - matrixRight.m[15];
+    
+    return m;
 }
 
 /**
