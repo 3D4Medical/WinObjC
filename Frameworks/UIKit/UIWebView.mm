@@ -240,6 +240,52 @@ static void initWebKit(UIWebView* self) {
 }
 
 /**
+ @Status Interoperable
+*/
+- (void)evaluateJavaScript:(NSString*)javaScriptString completionHandler:(void (^)(id, NSError*))completionHandler {
+  
+  NSArray *arguments = nil;
+  NSString *scriptString = [NSString stringWithString:javaScriptString];
+  NSRange range = [javaScriptString rangeOfString:@"('"];
+
+  if (range.location != NSNotFound) {
+                NSInteger startIndex = range.location + range.length;
+                NSInteger endIndex = [javaScriptString rangeOfString:@"')" options:NSBackwardsSearch].location;
+                if (endIndex != NSNotFound && endIndex > startIndex) {
+                    NSError *error = nil;
+                    NSString *argumentsString = [javaScriptString substringWithRange:NSMakeRange(startIndex, endIndex - startIndex)];                    
+                    argumentsString = [argumentsString stringByReplacingOccurrencesOfString:@"\\\"" withString:@"\""];
+                    
+					if (argumentsString.length > 0) {
+						arguments = [NSArray arrayWithObject:argumentsString];
+						//id argumentsObject = [NSJSONSerialization JSONObjectWithData:[argumentsString dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingAllowFragments error:&error];
+                                       
+						//if (error == nil) {
+						//	arguments = [NSArray arrayWithObject:argumentsString];
+					//	} else {
+					//		NSLog(@"json deserialization error: %@", error);
+					//	}
+					}
+                }
+
+				scriptString = [javaScriptString substringToIndex:range.location];
+  }
+           
+   [_xamlWebControl invokeScriptAsync:scriptString arguments:arguments success:^void(NSString* success){
+		NSLog(@"script invoked successfully!");
+		if(completionHandler != nil) {
+			completionHandler(success, nil);
+		}
+	} failure:^void(NSError* failure){
+		NSLog(@"script invocation failed");
+		if(completionHandler != nil) {
+			completionHandler(nil, failure);
+		}
+ }];
+
+}
+
+/**
  @Status Stub
 */
 - (void)setDataDetectorTypes:(UIDataDetectorTypes)types {
