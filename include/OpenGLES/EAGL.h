@@ -22,7 +22,8 @@
 
 enum {
    kEAGLRenderingAPIOpenGLES1 = 1,
-   kEAGLRenderingAPIOpenGLES2 = 2
+   kEAGLRenderingAPIOpenGLES2 = 2,
+   kEAGLRenderingAPIOpenGLES3 = 3
 };
 typedef uint32_t EAGLRenderingAPI;
 
@@ -32,6 +33,7 @@ typedef uint32_t EAGLRenderingAPI;
 EAGL_EXPORT_CLASS
 @interface EAGLContext : NSObject
 @property (readonly) EAGLSharegroup *sharegroup;
+@property (readonly) NSUInteger API;
 @property (getter=isMultiThreaded, nonatomic) BOOL multiThreaded;
 
 - (id)initWithAPI:(EAGLRenderingAPI)api;
