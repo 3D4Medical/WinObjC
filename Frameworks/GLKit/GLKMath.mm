@@ -738,7 +738,7 @@ GLKIT_EXPORT GLKMatrix3 GLKMatrix4GetMatrix3(GLKMatrix4 m) {
    @Status Caveat
    @Notes Only works on orthonormal transforms.
 */
-GLKIT_EXPORT GLKMatrix3 GLKMatrix3Invert(GLKMatrix3 m, BOOL* isInvertible) {
+GLKIT_EXPORT GLKMatrix3 GLKMatrix3Invert(GLKMatrix3 m, bool* isInvertible) {
    float determinant = (m.m00 * (m.m11 * m.m22 - m.m12 * m.m21)) +
     (m.m01 * (m.m12 * m.m20 - m.m22 * m.m10)) +
     (m.m02 * (m.m10 * m.m21 - m.m11 * m.m20));
@@ -762,7 +762,7 @@ GLKIT_EXPORT GLKMatrix3 GLKMatrix3Invert(GLKMatrix3 m, BOOL* isInvertible) {
    @Status Caveat
    @Notes Only works on orthonormal transforms.
 */
-GLKIT_EXPORT GLKMatrix3 GLKMatrix3InvertAndTranspose(GLKMatrix3 m, BOOL* isInvertible) {
+GLKIT_EXPORT GLKMatrix3 GLKMatrix3InvertAndTranspose(GLKMatrix3 m, bool* isInvertible) {
     m = GLKMatrix3Invert(m, isInvertible);
     return GLKMatrix3Transpose(m);
 }
@@ -821,70 +821,51 @@ GLKIT_EXPORT void GLKMatrix4MultiplyVector4Array(GLKMatrix4 m, GLKVector4* vecs,
 /**
  @Status Interoperable
 */
-GLKIT_EXPORT GLKMatrix4 GLKMatrix4Invert(GLKMatrix4 m, BOOL* isInvertible) {
-    GLKMatrix4 a;
-
-    a.m00 = ((m.m11 * m.m22 * m.m33) + (m.m12 * m.m23 * m.m31) + (m.m13 * m.m21 * m.m32)) -
-            ((m.m11 * m.m23 * m.m32) + (m.m12 * m.m21 * m.m33) + (m.m13 * m.m22 * m.m31));
-    a.m01 = ((m.m01 * m.m23 * m.m32) + (m.m02 * m.m21 * m.m33) + (m.m03 * m.m22 * m.m31)) -
-            ((m.m01 * m.m22 * m.m33) + (m.m02 * m.m31 * m.m23) + (m.m03 * m.m32 * m.m21));
-    a.m02 = ((m.m01 * m.m12 * m.m33) + (m.m02 * m.m13 * m.m31) + (m.m03 * m.m11 * m.m32)) -
-            ((m.m01 * m.m13 * m.m32) + (m.m02 * m.m11 * m.m33) + (m.m03 * m.m12 * m.m31));
-    a.m03 = ((m.m01 * m.m13 * m.m22) + (m.m02 * m.m11 * m.m23) + (m.m03 * m.m12 * m.m21)) -
-            ((m.m01 * m.m12 * m.m23) + (m.m03 * m.m11 * m.m22) + (m.m02 * m.m13 * m.m21));
-    a.m10 = ((m.m10 * m.m23 * m.m32) + (m.m13 * m.m22 * m.m30) + (m.m12 * m.m20 * m.m33)) -
-            ((m.m10 * m.m22 * m.m33) + (m.m13 * m.m20 * m.m32) + (m.m12 * m.m23 * m.m30));
-    a.m11 = ((m.m00 * m.m22 * m.m33) + (m.m02 * m.m23 * m.m30) + (m.m03 * m.m20 * m.m32)) -
-            ((m.m00 * m.m23 * m.m32) + (m.m02 * m.m20 * m.m33) + (m.m03 * m.m22 * m.m30));
-    a.m12 = ((m.m00 * m.m13 * m.m32) + (m.m02 * m.m10 * m.m33) + (m.m03 * m.m12 * m.m30)) -
-            ((m.m00 * m.m12 * m.m33) + (m.m03 * m.m10 * m.m32) + (m.m02 * m.m13 * m.m30));
-    a.m13 = ((m.m00 * m.m12 * m.m23) + (m.m02 * m.m13 * m.m20) + (m.m03 * m.m10 * m.m22)) -
-            ((m.m00 * m.m13 * m.m22) + (m.m02 * m.m10 * m.m23) + (m.m03 * m.m12 * m.m20));
-    a.m20 = ((m.m10 * m.m21 * m.m33) + (m.m11 * m.m23 * m.m30) + (m.m13 * m.m20 * m.m31)) -
-            ((m.m10 * m.m23 * m.m31) + (m.m11 * m.m20 * m.m33) + (m.m13 * m.m21 * m.m30));
-    a.m21 = ((m.m00 * m.m23 * m.m31) + (m.m01 * m.m20 * m.m33) + (m.m03 * m.m21 * m.m30)) -
-            ((m.m00 * m.m21 * m.m33) + (m.m03 * m.m20 * m.m31) + (m.m01 * m.m23 * m.m30));
-    a.m22 = ((m.m00 * m.m11 * m.m33) + (m.m01 * m.m13 * m.m30) + (m.m03 * m.m10 * m.m31)) -
-            ((m.m00 * m.m13 * m.m31) + (m.m01 * m.m10 * m.m33) + (m.m03 * m.m11 * m.m30));
-    a.m23 = ((m.m00 * m.m13 * m.m21) + (m.m01 * m.m10 * m.m23) + (m.m03 * m.m11 * m.m20)) -
-            ((m.m00 * m.m11 * m.m23) + (m.m01 * m.m13 * m.m20) + (m.m03 * m.m10 * m.m21));
-    a.m30 = ((m.m10 * m.m22 * m.m31) + (m.m11 * m.m20 * m.m32) + (m.m12 * m.m21 * m.m30)) -
-            ((m.m10 * m.m21 * m.m32) + (m.m12 * m.m20 * m.m31) + (m.m11 * m.m22 * m.m30));
-    a.m31 = ((m.m00 * m.m21 * m.m32) + (m.m01 * m.m22 * m.m30) + (m.m02 * m.m20 * m.m31)) -
-            ((m.m00 * m.m22 * m.m31) + (m.m01 * m.m20 * m.m32) + (m.m02 * m.m21 * m.m30));
-    a.m32 = ((m.m00 * m.m12 * m.m31) + (m.m01 * m.m10 * m.m32) + (m.m02 * m.m11 * m.m30)) -
-            ((m.m00 * m.m11 * m.m32) + (m.m02 * m.m10 * m.m31) + (m.m01 * m.m12 * m.m30));
-    a.m33 = ((m.m00 * m.m11 * m.m22) + (m.m01 * m.m12 * m.m20) + (m.m02 * m.m10 * m.m21)) -
-            ((m.m00 * m.m12 * m.m21) + (m.m01 * m.m10 * m.m22) + (m.m02 * m.m11 * m.m20));
-
-    const float determinant = m.m00 * a.m00 + m.m01 * a.m10 + m.m02 * a.m20 + m.m03 * a.m30;
-    GLKMatrix4 aNorm;
-
-    if (determinant == 0) {
-        
-        if (isInvertible != nullptr) { 
-            *isInvertible = false;
-        }
-
-        // Set output to identity matrix if input matrix is not invertible
-        aNorm = { 0 };
-        aNorm.m00 = 1.0f;
-        aNorm.m11 = 1.0f;
-        aNorm.m22 = 1.0f;
-        aNorm.m33 = 1.0f;
-    } else {
-        if (isInvertible != nullptr) {
-            *isInvertible = true;
-        }
-
-        const float determinantInv = 1.0f / determinant;
-
-        for (int i = 0; i < 16; i++) {
-            aNorm.m[i] = a.m[i] * determinantInv;
-        }
+GLKIT_EXPORT GLKMatrix4 GLKMatrix4Invert(GLKMatrix4 matrix, bool* isInvertible) {
+    float b00 = matrix.m[0] * matrix.m[5] - matrix.m[1] * matrix.m[4];
+    float b01 = matrix.m[0] * matrix.m[6] - matrix.m[2] * matrix.m[4];
+    float b02 = matrix.m[0] * matrix.m[7] - matrix.m[3] * matrix.m[4];
+    float b03 = matrix.m[1] * matrix.m[6] - matrix.m[2] * matrix.m[5];
+    float b04 = matrix.m[1] * matrix.m[7] - matrix.m[3] * matrix.m[5];
+    float b05 = matrix.m[2] * matrix.m[7] - matrix.m[3] * matrix.m[6];
+    float b06 = matrix.m[8] * matrix.m[13] - matrix.m[9] * matrix.m[12];
+    float b07 = matrix.m[8] * matrix.m[14] - matrix.m[10] * matrix.m[12];
+    float b08 = matrix.m[8] * matrix.m[15] - matrix.m[11] * matrix.m[12];
+    float b09 = matrix.m[9] * matrix.m[14] - matrix.m[10] * matrix.m[13];
+    float b10 = matrix.m[9] * matrix.m[15] - matrix.m[11] * matrix.m[13];
+    float b11 = matrix.m[10] * matrix.m[15] - matrix.m[11] * matrix.m[14];
+    
+    // Calculate the determinant (inlined to avoid double-caching)
+    float determinant = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+    if (isInvertible != NULL) {
+        *isInvertible = determinant != 0;
     }
-
-    return aNorm;
+    
+    if (determinant == 0) {
+        return GLKMatrix4Identity;
+    }
+    
+    float invDet = 1.0f / determinant;
+    GLKMatrix4 m;
+    
+    m.m[0] = (matrix.m[5] * b11 - matrix.m[6] * b10 + matrix.m[7] * b09) * invDet;
+    m.m[1] = (-matrix.m[1] * b11 + matrix.m[2] * b10 - matrix.m[3] * b09) * invDet;
+    m.m[2] = (matrix.m[13] * b05 - matrix.m[14] * b04 + matrix.m[15] * b03) * invDet;
+    m.m[3] = (-matrix.m[9] * b05 + matrix.m[10] * b04 - matrix.m[11] * b03) * invDet;
+    m.m[4] = (-matrix.m[4] * b11 + matrix.m[6] * b08 - matrix.m[7] * b07) * invDet;
+    m.m[5] = (matrix.m[0] * b11 - matrix.m[2] * b08 + matrix.m[3] * b07) * invDet;
+    m.m[6] = (-matrix.m[12] * b05 + matrix.m[14] * b02 - matrix.m[15] * b01) * invDet;
+    m.m[7] = (matrix.m[8] * b05 - matrix.m[10] * b02 + matrix.m[11] * b01) * invDet;
+    m.m[8] = (matrix.m[4] * b10 - matrix.m[5] * b08 + matrix.m[7] * b06) * invDet;
+    m.m[9] = (-matrix.m[0] * b10 + matrix.m[1] * b08 - matrix.m[3] * b06) * invDet;
+    m.m[10] = (matrix.m[12] * b04 - matrix.m[13] * b02 + matrix.m[15] * b00) * invDet;
+    m.m[11] = (-matrix.m[8] * b04 + matrix.m[9] * b02 - matrix.m[11] * b00) * invDet;
+    m.m[12] = (-matrix.m[4] * b09 + matrix.m[5] * b07 - matrix.m[6] * b06) * invDet;
+    m.m[13] = (matrix.m[0] * b09 - matrix.m[1] * b07 + matrix.m[2] * b06) * invDet;
+    m.m[14] = (-matrix.m[12] * b03 + matrix.m[13] * b01 - matrix.m[14] * b00) * invDet;
+    m.m[15] = (matrix.m[8] * b03 - matrix.m[9] * b01 + matrix.m[10] * b00) * invDet;
+    
+    return m;
 }
 
 /**
@@ -1146,11 +1127,19 @@ GLKIT_EXPORT GLKQuaternion GLKQuaternionMakeWithMatrix4(GLKMatrix4 mat) {
 */
 GLKVector3 GLKMathProject(GLKVector3 object, GLKMatrix4 model, GLKMatrix4 projection, int* viewport) {
     
-	GLKVector3 v = GLKMatrix4MultiplyVector3(GLKMatrix4Multiply(model, projection), object);
+	GLKVector4 v4 = GLKVector4MakeWithVector3(object, 1.0);
+    GLKVector4 v = GLKMatrix4MultiplyVector4(model, v4);
+    v = GLKMatrix4MultiplyVector4(projection, v);
     
-    float x = viewport[0] + ((viewport[2] * (v.x + 1.0f)) / 2.0f);
-    float y = viewport[1] + ((viewport[3] * (v.y + 1.0f)) / 2.0f);
-    float z = (v.z + 1.0f) / 2.0f;
+    v.v[3] = 1.0/v.v[3];
+    v.v[0] *= v.v[3];
+    v.v[1] *= v.v[3];
+    v.v[2] *= v.v[3];
+    
+    float x = (v.v[0] * 0.5 + 0.5) * viewport[2] + viewport[0];
+    float y = (v.v[1] * 0.5 + 0.5) * viewport[3] + viewport[1];
+    float z = (1.0 + v.v[2])*0.5;
+
     return GLKVector3Make(x, y, z);
 }
 
@@ -1159,24 +1148,27 @@ GLKVector3 GLKMathProject(GLKVector3 object, GLKMatrix4 model, GLKMatrix4 projec
  @Notes
 */
 GLKVector3 GLKMathUnproject(GLKVector3 window, GLKMatrix4 model, GLKMatrix4 projection, int* viewport, bool* success) {
-    BOOL canInvert = NO;
-
-	 GLKMatrix4 inverted = GLKMatrix4Invert(GLKMatrix4Multiply(projection, model), &canInvert);
-	 if (success) {
+	bool canInvert = false;
+    GLKMatrix4 inverted = GLKMatrix4Invert(GLKMatrix4Multiply(projection, model), &canInvert);
+    if (success) {
         *success = canInvert;
-	}
+    }
     
     if (!canInvert) {
         return GLKVector3Make(0.0f, 0.0f, 0.0f);
     }
     
-    float x = ((2.0f * window.x - viewport[0]) / viewport[2]) - 1.0f;
-    float y = ((2.0f * window.y - viewport[1]) / viewport[3]) - 1.0f;
-    float z = (2.0f * window.z) - 1.0f;
+    GLKVector4 normalisedVector = GLKVector4Make((2 * window.x / viewport[2] - 1),
+                                                 (2 * (window.y - viewport[1]) / viewport[3] - 1),
+                                                 2*window.z - 1,
+                                                 1);
+    
+    GLKVector4 _point = GLKMatrix4MultiplyVector4(inverted, normalisedVector);
+    _point.v[3] = 1.0/_point.v[3];
+    
+    GLKVector3 vec = GLKVector3Make(_point.v[0]*_point.v[3], _point.v[1]*_point.v[3], _point.v[2]*_point.v[3]);
 
-    GLKVector4 unproject4 = GLKMatrix4MultiplyVector4(inverted, GLKVector4Make(x, y, z, 1.0f));
-
-    return GLKVector3Make(unproject4.x, unproject4.y, unproject4.z);
+    return vec;
 }
 
 /**
@@ -1341,23 +1333,6 @@ GLKMatrix3 GLKMatrix3SetRow(GLKMatrix3 matrix, int row, GLKVector3 vector) {
     return StubReturn();
 }
 
-/**
- @Status Stub
- @Notes
-*/
-GLKMatrix3 GLKMatrix3Invert(GLKMatrix3 matrix, bool* isInvertible) {
-    UNIMPLEMENTED();
-    return StubReturn();
-}
-
-/**
- @Status Stub
- @Notes
-*/
-GLKMatrix3 GLKMatrix3InvertAndTranspose(GLKMatrix3 matrix, bool* isInvertible) {
-    UNIMPLEMENTED();
-    return StubReturn();
-}
 
 /**
  @Status Interoperable

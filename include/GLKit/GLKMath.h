@@ -76,28 +76,30 @@ typedef struct _GLKMatrix2 {
     };
 } GLKMatrix2;
 
-typedef struct _GLKMatrix3 {
-    union {
-        struct {
-            float m00, m01, m02;
-            float m10, m11, m12;
-            float m20, m21, m22;
-        };
-        float m[9];
-    };
-} GLKMatrix3;
+union _GLKMatrix3
+{
+	struct
+	{
+		float m00, m01, m02;
+		float m10, m11, m12;
+		float m20, m21, m22;
+	};
+	float m[9];
+};
+typedef union _GLKMatrix3 GLKMatrix3;
 
-typedef struct _GLKMatrix4 {
-    union {
-        struct {
-            float m00, m01, m02, m03;
-            float m10, m11, m12, m13;
-            float m20, m21, m22, m23;
-            float m30, m31, m32, m33;
-        };
-        float m[16];
-    };
-} GLKMatrix4;
+union _GLKMatrix4
+{
+	struct
+	{
+		float m00, m01, m02, m03;
+		float m10, m11, m12, m13;
+		float m20, m21, m22, m23;
+		float m30, m31, m32, m33;
+	};
+	float m[16];
+};
+typedef union _GLKMatrix4 GLKMatrix4;
 
 typedef struct _GLKQuaternion {
     union {
@@ -220,8 +222,8 @@ GLKIT_EXPORT GLKMatrix3 GLKMatrix3MakeYRotation(float rad);
 GLKIT_EXPORT GLKMatrix3 GLKMatrix3MakeZRotation(float rad);
 
 GLKIT_EXPORT GLKMatrix2 GLKMatrix4GetMatrix2(GLKMatrix4 m);
-GLKIT_EXPORT GLKMatrix3 GLKMatrix3Invert(GLKMatrix3 m, BOOL* isInvertible);
-GLKIT_EXPORT GLKMatrix3 GLKMatrix3InvertAndTranspose(GLKMatrix3 m, BOOL* isInvertible);
+GLKIT_EXPORT GLKMatrix3 GLKMatrix3Invert(GLKMatrix3 m, bool* isInvertible);
+GLKIT_EXPORT GLKMatrix3 GLKMatrix3InvertAndTranspose(GLKMatrix3 m, bool* isInvertible);
 GLKIT_EXPORT GLKMatrix3 GLKMatrix4GetMatrix3(GLKMatrix4 m);
 GLKIT_EXPORT GLKMatrix4 GLKMatrix4SetColumn(GLKMatrix4 matrix, int column, GLKVector4 vector);
 GLKIT_EXPORT GLKMatrix4 GLKMatrix4SetRow(GLKMatrix4 matrix, int row, GLKVector4 vector) STUB_METHOD;
@@ -268,7 +270,7 @@ GLKIT_EXPORT void GLKMatrix4MultiplyVector3ArrayWithTranslation(GLKMatrix4 m, GL
 GLKIT_EXPORT GLKVector3 GLKMatrix4MultiplyAndProjectVector3(GLKMatrix4 matrixLeft, GLKVector3 vectorRight) STUB_METHOD;
 GLKIT_EXPORT void GLKMatrix4MultiplyAndProjectVector3Array(GLKMatrix4 matrix, GLKVector3* vectors, size_t vectorCount) STUB_METHOD;
 
-GLKIT_EXPORT GLKMatrix4 GLKMatrix4Invert(GLKMatrix4 m, BOOL* isInvertible);
+GLKIT_EXPORT GLKMatrix4 GLKMatrix4Invert(GLKMatrix4 m, bool* isInvertible);
 
 GLKIT_EXPORT NSString* NSStringFromGLKMatrix2(GLKMatrix2 matrix);
 GLKIT_EXPORT NSString* NSStringFromGLKMatrix3(GLKMatrix3 matrix);
