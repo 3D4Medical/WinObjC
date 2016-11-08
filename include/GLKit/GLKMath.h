@@ -1195,17 +1195,34 @@ inline GLKQuaternion GLKQuaternionInvert(GLKQuaternion q) {
 /**
  @Status Interoperable
 */
-inline GLKQuaternion GLKQuaternionSlerp(GLKQuaternion q1, GLKQuaternion q2, float t) {
-    float mq1 = GLKQuaternionLength(q1);
-    float mq2 = GLKQuaternionLength(q2);
-    float dp = GLKQuaternionDot(q1, q2);
+inline GLKQuaternion GLKQuaternionSlerp(GLKQuaternion quaternionStart, GLKQuaternion quaternionEnd, float t) {
 
-    float cang = dp / (mq1 * mq2);
-    float ang = acosf(cang);
-    float invsang = 1.f / sinf(ang);
+	GLKQuaternion q1 = GLKQuaternionNormalize(quaternionStart);
+	GLKQuaternion q2 = GLKQuaternionNormalize(quaternionEnd);
 
-    return GLKQuaternionAdd(GLKQuaternionMultiplyByScalar(sinf((1.f - t) * ang) * invsang, q1),
-                            GLKQuaternionMultiplyByScalar(sinf(t * ang) * invsang, q2));
+	float dot = GLKQuaternionDot(q1, q2);
+
+	if (dot < 0) {
+		dot = -dot;
+		q2 = GLKQuaternionMultiplyByScalar(-1.0, q2);
+	}
+
+	if (dot > 0.9999f) {
+		dot = 0.9999f;
+	}
+
+	float omega = acosf(dot);
+
+	float inv_sin_omega = (1.0f / sinf(omega));
+
+	q1 = GLKQuaternionMultiplyByScalar(inv_sin_omega, q1);
+	q2 = GLKQuaternionMultiplyByScalar(inv_sin_omega, q2);
+
+
+	q1 = GLKQuaternionMultiplyByScalar(sinf((1.0f - t)*omega), q1);
+	q2 = GLKQuaternionMultiplyByScalar(sinf(t*omega), q2);
+
+	return GLKQuaternionAdd(q1, q2);
 }
 
 /**

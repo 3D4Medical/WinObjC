@@ -1230,8 +1230,7 @@ NSString* NSStringFromGLKVector4(GLKVector4 vector) {
  @Notes
 */
 NSString* NSStringFromGLKQuaternion(GLKQuaternion quaternion) {
-    UNIMPLEMENTED();
-    return StubReturn();
+    return [NSString stringWithFormat:@"{%f, %f, %f, %f}", quaternion.x, quaternion.y, quaternion.z, quaternion.w];
 }
 
 /**
