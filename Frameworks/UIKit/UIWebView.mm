@@ -258,13 +258,6 @@ static void initWebKit(UIWebView* self) {
                     
 					if (argumentsString.length > 0) {
 						arguments = [NSArray arrayWithObject:argumentsString];
-						//id argumentsObject = [NSJSONSerialization JSONObjectWithData:[argumentsString dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingAllowFragments error:&error];
-                                       
-						//if (error == nil) {
-						//	arguments = [NSArray arrayWithObject:argumentsString];
-					//	} else {
-					//		NSLog(@"json deserialization error: %@", error);
-					//	}
 					}
                 }
 
@@ -272,12 +265,10 @@ static void initWebKit(UIWebView* self) {
   }
            
    [_xamlWebControl invokeScriptAsync:scriptString arguments:arguments success:^void(NSString* success){
-		NSLog(@"script invoked successfully!");
 		if(completionHandler != nil) {
 			completionHandler(success, nil);
 		}
 	} failure:^void(NSError* failure){
-		NSLog(@"script invocation failed");
 		if(completionHandler != nil) {
 			completionHandler(nil, failure);
 		}
