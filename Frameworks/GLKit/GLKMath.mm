@@ -674,9 +674,9 @@ GLKIT_EXPORT GLKVector3 GLKMatrix4MultiplyVector3(GLKMatrix4 m, GLKVector3 vec) 
    @Status Interoperable
 */
 GLKIT_EXPORT GLKVector3 GLKMatrix3MultiplyVector3(GLKMatrix3 m, GLKVector3 vec) {
-    GLKVector3 v = { matrixLeft.m[0] * vectorRight.v[0] + matrixLeft.m[3] * vectorRight.v[1] + matrixLeft.m[6] * vectorRight.v[2],
-        matrixLeft.m[1] * vectorRight.v[0] + matrixLeft.m[4] * vectorRight.v[1] + matrixLeft.m[7] * vectorRight.v[2],
-        matrixLeft.m[2] * vectorRight.v[0] + matrixLeft.m[5] * vectorRight.v[1] + matrixLeft.m[8] * vectorRight.v[2] };
+    GLKVector3 v = { m.m[0] * vec.v[0] + m.m[3] * vec.v[1] + m.m[6] * vec.v[2],
+        m.m[1] * vec.v[0] + m.m[4] * vec.v[1] + m.m[7] * vec.v[2],
+        m.m[2] * vec.v[0] + m.m[5] * vec.v[1] + m.m[8] * vec.v[2] };
     return v;
 }
 
