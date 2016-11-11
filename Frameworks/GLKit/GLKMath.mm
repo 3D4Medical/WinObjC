@@ -735,24 +735,49 @@ GLKIT_EXPORT GLKMatrix3 GLKMatrix4GetMatrix3(GLKMatrix4 m) {
    @Status Caveat
    @Notes Only works on orthonormal transforms.
 */
-GLKIT_EXPORT GLKMatrix3 GLKMatrix3Invert(GLKMatrix3 m, bool* isInvertible) {
-   float determinant = (m.m00 * (m.m11 * m.m22 - m.m12 * m.m21)) +
-    (m.m01 * (m.m12 * m.m20 - m.m22 * m.m10)) +
-    (m.m02 * (m.m10 * m.m21 - m.m11 * m.m20));
+GLKIT_EXPORT GLKMatrix3 GLKMatrix3Invert(GLKMatrix3 matrix, bool *isInvertible) {
     
-	bool canInvert = determinant != 0.0f;
-
+    double doubleMatrixArray[9];
+    
+    doubleMatrixArray[0] = (double)matrix.m[0];
+    doubleMatrixArray[1] = (double)matrix.m[1];
+    doubleMatrixArray[2] = (double)matrix.m[2];
+    doubleMatrixArray[3] = (double)matrix.m[3];
+    doubleMatrixArray[4] = (double)matrix.m[4];
+    doubleMatrixArray[5] = (double)matrix.m[5];
+    doubleMatrixArray[6] = (double)matrix.m[6];
+    doubleMatrixArray[7] = (double)matrix.m[7];
+    doubleMatrixArray[8] = (double)matrix.m[8];
+    
+    double firstMinor = doubleMatrixArray[0] * (doubleMatrixArray[4] * doubleMatrixArray[8] - doubleMatrixArray[5] * doubleMatrixArray[7]);
+    double secondMinor = doubleMatrixArray[1] * (doubleMatrixArray[3] * doubleMatrixArray[8] - doubleMatrixArray[5] * doubleMatrixArray[6]);
+    double thirdMinor = doubleMatrixArray[2] * (doubleMatrixArray[3] * doubleMatrixArray[7] - doubleMatrixArray[4] * doubleMatrixArray[6]);
+    
+    double determinant = firstMinor - secondMinor + thirdMinor;
+    
+    bool canInvert = determinant != 0.0f;
+    if (isInvertible) {
+        *isInvertible = canInvert;
+    }
+    
     if (!canInvert) {
         return GLKMatrix3Identity;
     }
-	
-    // This is only going to work in very limited circumstances.
-    // (ie, m is an orthonormal transform).
-    if (isInvertible) {
-        *isInvertible = true;
-    }
 
-   return GLKMatrix3Scale(GLKMatrix3Transpose(m), determinant, determinant, determinant);
+    double invdet = 1 / determinant; //inverse determinant
+    
+    GLKMatrix3 inverseMatrix; // inverse of matrix m
+    inverseMatrix.m[0] = (doubleMatrixArray[4] * doubleMatrixArray[8] - doubleMatrixArray[7] * doubleMatrixArray[5]) * invdet;
+    inverseMatrix.m[1] = (doubleMatrixArray[2] * doubleMatrixArray[7] - doubleMatrixArray[1] * doubleMatrixArray[8]) * invdet;
+    inverseMatrix.m[2] = (doubleMatrixArray[1] * doubleMatrixArray[5] - doubleMatrixArray[2] * doubleMatrixArray[4]) * invdet;
+    inverseMatrix.m[3] = (doubleMatrixArray[5] * doubleMatrixArray[6] - doubleMatrixArray[3] * doubleMatrixArray[8]) * invdet;
+    inverseMatrix.m[4] = (doubleMatrixArray[0] * doubleMatrixArray[8] - doubleMatrixArray[2] * doubleMatrixArray[6]) * invdet;
+    inverseMatrix.m[5] = (doubleMatrixArray[3] * doubleMatrixArray[2] - doubleMatrixArray[0] * doubleMatrixArray[5]) * invdet;
+    inverseMatrix.m[6] = (doubleMatrixArray[3] * doubleMatrixArray[7] - doubleMatrixArray[6] * doubleMatrixArray[4]) * invdet;
+    inverseMatrix.m[7] = (doubleMatrixArray[6] * doubleMatrixArray[1] - doubleMatrixArray[0] * doubleMatrixArray[7]) * invdet;
+    inverseMatrix.m[8] = (doubleMatrixArray[0] * doubleMatrixArray[4] - doubleMatrixArray[3] * doubleMatrixArray[1]) * invdet;
+
+    return inverseMatrix;
 }
 
 /**
