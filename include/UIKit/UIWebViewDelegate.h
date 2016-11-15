@@ -31,4 +31,5 @@
 - (void)webViewDidStartLoad:(UIWebView*)webView;
 - (void)webViewDidFinishLoad:(UIWebView*)webView;
 - (void)webView:(UIWebView*)webView didFailLoadWithError:(NSError*)error;
+-(BOOL)webView:(UIWebView*)webView scriptNotify: (NSURL*)url value : (NSString*)value;
 @end
