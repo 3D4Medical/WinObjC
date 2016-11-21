@@ -259,27 +259,7 @@ static void initWebKit(UIWebView* self) {
 */
 - (void)evaluateJavaScript:(NSString*)javaScriptString completionHandler:(void (^)(id, NSError*))completionHandler {
   
-  NSArray *arguments = nil;
-  NSString *scriptString = [NSString stringWithString:javaScriptString];
-  NSRange range = [javaScriptString rangeOfString:@"('"];
-
-  if (range.location != NSNotFound) {
-                NSInteger startIndex = range.location + range.length;
-                NSInteger endIndex = [javaScriptString rangeOfString:@"')" options:NSBackwardsSearch].location;
-                if (endIndex != NSNotFound && endIndex > startIndex) {
-                    NSError *error = nil;
-                    NSString *argumentsString = [javaScriptString substringWithRange:NSMakeRange(startIndex, endIndex - startIndex)];                    
-                    argumentsString = [argumentsString stringByReplacingOccurrencesOfString:@"\\\"" withString:@"\""];
-                    
-					if (argumentsString.length > 0) {
-						arguments = [NSArray arrayWithObject:argumentsString];
-					}
-                }
-
-				scriptString = [javaScriptString substringToIndex:range.location];
-  }
-           
-   [_xamlWebControl invokeScriptAsync:scriptString arguments:arguments success:^void(NSString* success){
+  [_xamlWebControl invokeScriptAsync:@"eval" arguments:[NSArray arrayWithObject:javaScriptString] success:^void(NSString* success){
 		if(completionHandler != nil) {
 			completionHandler(success, nil);
 		}
@@ -288,7 +268,6 @@ static void initWebKit(UIWebView* self) {
 			completionHandler(nil, failure);
 		}
  }];
-
 }
 
 /**
