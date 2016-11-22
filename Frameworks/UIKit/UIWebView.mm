@@ -37,7 +37,7 @@
     idretaintype(NSURLRequest) _request;
     bool _isLoading;
     UIScrollView* _scrollView;
-    WXCWebView* _xamlWebControl;
+    StrongId<WXCWebView> _xamlWebControl;
     EventRegistrationToken _xamlLoadCompletedEventCookie;
     EventRegistrationToken _xamlLoadStartedEventCookie;
     EventRegistrationToken _xamlUnsupportedUriSchemeEventCookie;
@@ -99,9 +99,12 @@
     });
 }
 
-static void initWebKit(UIWebView* self) {
-    self->_xamlWebControl = [WXCWebView make];
-    [self setXamlElement:self->_xamlWebControl];
+static void _initUIWebView(UIWebView* self) {
+    // Store a strongly-typed backing scrollviewer
+    self->_xamlWebControl = rt_dynamic_cast<WXCWebView>([self xamlElement]);
+    if (!self->_xamlWebControl) {
+        FAIL_FAST();
+    }
 
     __block UIWebView* weakSelf = self;
     self->_xamlLoadCompletedEventCookie = [self->_xamlWebControl addLoadCompletedEvent:^void(RTObject* sender, WUXNNavigationEventArgs* e) {
@@ -110,7 +113,6 @@ static void initWebKit(UIWebView* self) {
         if ([weakSelf->_delegate respondsToSelector:@selector(webViewDidFinishLoad:)]) {
             [weakSelf->_delegate webViewDidFinishLoad:weakSelf];
         }
-
     }];
 
 	//Add handler which will be invoked when user calls window.external.notify(msg) function in javascript
@@ -179,12 +181,34 @@ static void initWebKit(UIWebView* self) {
 /**
  @Status Interoperable
 */
-- (instancetype)init {
-    [super init];
-
-    initWebKit(self);
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        RunSynchronouslyOnMainThread(^{
+            _initUIWebView(self);
+        });
+    }
 
     return self;
+}
+
+/**
+ Microsoft Extension
+*/
+- (instancetype)initWithFrame:(CGRect)frame xamlElement:(WXFrameworkElement*)xamlElement {
+    if (self = [super initWithFrame:frame xamlElement:xamlElement]) {
+        RunSynchronouslyOnMainThread(^{
+            _initUIWebView(self);
+        });
+    }
+
+    return self;
+}
+
+/**
+ Microsoft Extension
+*/
++ (WXFrameworkElement*)createXamlElement {
+    return [[WXCWebView make] autorelease];
 }
 
 /**
@@ -194,20 +218,7 @@ static void initWebKit(UIWebView* self) {
 - (instancetype)initWithCoder:(NSCoder*)coder {
     [super initWithCoder:coder];
 
-    initWebKit(self);
-
-    return self;
-}
-
-/**
- @Status Interoperable
-*/
-- (instancetype)initWithFrame:(CGRect)rect {
-    [super initWithFrame:rect];
-
-    RunSynchronouslyOnMainThread(^{
-        initWebKit(self);
-    });
+    _initUIWebView(self);
 
     return self;
 }
@@ -281,14 +292,14 @@ static void initWebKit(UIWebView* self) {
  @Status Interoperable
 */
 - (BOOL)canGoBack {
-    return _xamlWebControl.canGoBack;
+    return _xamlWebControl.get().canGoBack;
 }
 
 /**
  @Status Interoperable
 */
 - (BOOL)canGoForward {
-    return _xamlWebControl.canGoForward;
+    return _xamlWebControl.get().canGoForward;
 }
 
 /**
@@ -351,7 +362,7 @@ static void initWebKit(UIWebView* self) {
         [_xamlWebControl removeLoadCompletedEvent:_xamlLoadCompletedEventCookie];
         [_xamlWebControl removeNavigationStartingEvent:_xamlLoadStartedEventCookie];
         [_xamlWebControl removeUnsupportedUriSchemeIdentifiedEvent:_xamlUnsupportedUriSchemeEventCookie];
-        [_xamlWebControl release];
+        _xamlWebControl = nil;
     });
 
     [super dealloc];
