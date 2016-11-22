@@ -86,15 +86,15 @@ void createResultsArray(WSMMapLocationFinderResult* results, NSMutableArray* geo
         }
 
         [addressDictionary setValue:placemarkName forKey:@"placemarkName"];
-        [addressDictionary setValue:[currentAddress countryCode] forKey:@"placemarkISOcountryCode"];
-        [addressDictionary setValue:[currentAddress country] forKey:@"placemarkCountry"];
-        [addressDictionary setValue:[currentAddress postCode] forKey:@"placemarkPostalCode"];
-        [addressDictionary setValue:[currentAddress region] forKey:@"placemarkAdministrativeArea"];
-        [addressDictionary setValue:[currentAddress district] forKey:@"placemarkSubAdministrativeArea"];
-        [addressDictionary setValue:[currentAddress town] forKey:@"placemarkLocality"];
-        [addressDictionary setValue:[currentAddress neighborhood] forKey:@"placemarkSubLocality"];
-        [addressDictionary setValue:[currentAddress street] forKey:@"placemarkThoroughfare"];
-        [addressDictionary setValue:[currentAddress streetNumber] forKey:@"placemarkSubThoroughfare"];
+        [addressDictionary setValue:[currentAddress countryCode] forKey:@"CountryCode"];
+        [addressDictionary setValue:[currentAddress country] forKey:@"Country"];
+        [addressDictionary setValue:[currentAddress postCode] forKey:@"PostalCode"];
+        [addressDictionary setValue:[currentAddress region] forKey:@"AdministrativeArea"];
+        [addressDictionary setValue:[currentAddress district] forKey:@"SubAdministrativeArea"];
+        [addressDictionary setValue:[currentAddress town] forKey:@"Locality"];
+        [addressDictionary setValue:[currentAddress neighborhood] forKey:@"SubLocality"];
+        [addressDictionary setValue:[currentAddress street] forKey:@"Thoroughfare"];
+        [addressDictionary setValue:[currentAddress streetNumber] forKey:@"SubThoroughfare"];
         CLLocation* resultLocation = [[CLLocation alloc] initWithLatitude:[[[currentResult point] position] latitude]
                                                                 longitude:[[[currentResult point] position] longitude]];
 
