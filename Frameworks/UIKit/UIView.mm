@@ -504,7 +504,14 @@ static std::string _printViewhierarchy(UIView* leafView) {
         touchEventName = @selector(touchesCancelled:withEvent:);
     }
 
-    if (touchPhase != UITouchPhaseBegan && ![touchPoint.touch->_view->priv->currentTouches containsObject:touchPoint.touch]) {
+    if (!touchPoint.touch->_view) {
+        // Ignore if the pointer isn't captured
+        if (DEBUG_TOUCHES_LIGHT) {
+            TraceVerbose(TAG,
+                L"View for touch is nil!, ignoring touch for touchPhase %d.",
+                touchPhase);
+        }
+    } else if (touchPhase != UITouchPhaseBegan && ![touchPoint.touch->_view->priv->currentTouches containsObject:touchPoint.touch]) {
         // Ignore if the pointer isn't captured
         if (DEBUG_TOUCHES_LIGHT) {
             TraceVerbose(TAG,
@@ -718,10 +725,6 @@ static std::string _printViewhierarchy(UIView* leafView) {
 
     // Create the private backing object
     self->priv = new UIViewPrivateState(self);
-
-    // Since we piggyback on autoresize masks and layoutSubviews for autolayout, we need to
-    // edge-trigger intrinsic content size changes, or we stumble into layout loops
-    priv->_previousIntrinsicContentSize = { UIViewNoIntrinsicMetric, UIViewNoIntrinsicMetric };
 
     // Configure autolayout
     static bool isAutoLayoutInitialized = InitializeAutoLayout();
@@ -2640,7 +2643,6 @@ static float doRound(float f) {
 */
 - (void)updateConstraints {
     priv->_constraintsNeedUpdate = NO;
-
     [self autoLayoutUpdateConstraints];
 }
 
@@ -3566,10 +3568,9 @@ static float doRound(float f) {
  @Status Interoperable
 */
 - (void)invalidateIntrinsicContentSize {
-    // The parent is always responsible for autolaying out its children
-    if (!CGSizeEqualToSize(priv->_previousIntrinsicContentSize, self.intrinsicContentSize)) {
-        priv->_previousIntrinsicContentSize = self.intrinsicContentSize;
-        [self autoLayoutInvalidateContentSize];
+    // The parent is always responsible for autolaying out its children, and just as on the reference platform,
+    // this triggers a layout pass on the superview only if our intrinsic content size has changed.
+    if ([self autoLayoutInvalidateContentSize]) {
         [self.superview setNeedsLayout];
     }
 }
