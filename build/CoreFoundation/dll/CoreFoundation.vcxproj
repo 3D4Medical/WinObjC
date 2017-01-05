@@ -146,7 +146,6 @@
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
-      <Optimization>Full</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -164,7 +163,6 @@
       <SystemHeaderDeps>true</SystemHeaderDeps>
       <PrefixHeader>$(MSBuildThisFileDirectory)..\..\..\Frameworks\CoreFoundation\Base.Subproj\CoreFoundation_Prefix.h</PrefixHeader>
       <CompileAs>CompileAsObjCpp</CompileAs>
-      <OptimizationLevel>Full</OptimizationLevel>
     </ClangCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|arm'">
@@ -228,7 +226,7 @@
   </ImportGroup>
   <Target Name="CopyCoreFoundationResourcesToOutput" AfterTargets="AfterBuild">
     <ItemGroup>
-      <CoreFoundationResourceFile Include="$(MSBuildThisFileDirectory)..\..\..\Frameworks\CoreFoundation\CharacterSets\*" />
+      <CoreFoundationResourceFile Include="$(MSBuildThisFileDirectory)..\..\..\Frameworks\CoreFoundation\CharacterSets\*"/>
     </ItemGroup>
     <Copy SourceFiles="@(CoreFoundationResourceFile)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="True" />
   </Target>

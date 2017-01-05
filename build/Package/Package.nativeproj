@@ -65,7 +65,6 @@
       <!-- X86 -->
       <SBLibsWin10Win32 Include="..\Win32\$(Configuration)\Universal Windows\*.lib" />
       <SBLibsWin10Win32 Include="..\Win32\$(Configuration)\Universal Windows\*.dll" />
-	<SBLibsWin10Win32 Include="..\Win32\$(Configuration)\Universal Windows\*.pdb" />
       <SBLibsWin10Win32 Include="..\Win32\$(Configuration)\Universal Windows\*.winmd" />
       <SBLibsWin10Win32 Include="..\Win32\$(Configuration)\Universal Windows\UIKit.Xaml.pri" />
       <SBLibsWin10Win32 Include="..\Win32\$(Configuration)\Universal Windows\*.bitmap" />
@@ -75,9 +74,6 @@
 
       <!-- Files in these directories ship both Debug and Release varieties -->
       <SBLibsWin10Win32 Include="..\Win32\Debug\Universal Windows\Debug\*.lib">
-        <OutputDirectory>x86\Debug</OutputDirectory>
-      </SBLibsWin10Win32>
-	<SBLibsWin10Win32 Include="..\Win32\Debug\Universal Windows\Debug\*.pdb">
         <OutputDirectory>x86\Debug</OutputDirectory>
       </SBLibsWin10Win32>
       <SBLibsWin10Win32 Include="..\Win32\Debug\Universal Windows\Debug\*.dll">
@@ -93,12 +89,8 @@
       <!-- These should go away; we should have debug/release for each -->
       <SBLibsWin10Win32 Include="..\..\deps\prebuilt\Universal Windows\x86\*.lib" />
       <SBLibsWin10Win32 Include="..\..\deps\prebuilt\Universal Windows\x86\*.dll" />
-<SBLibsWin10Win32 Include="..\..\deps\prebuilt\Universal Windows\x86\*.pdb" />
       
       <SBLibsWin10Win32 Include="..\..\deps\prebuilt\Universal Windows\x86\Debug\*.lib">
-        <OutputDirectory>x86\Debug</OutputDirectory>
-      </SBLibsWin10Win32>
-	<SBLibsWin10Win32 Include="..\..\deps\prebuilt\Universal Windows\x86\Debug\*.pdb">
         <OutputDirectory>x86\Debug</OutputDirectory>
       </SBLibsWin10Win32>
       <SBLibsWin10Win32 Include="..\..\deps\prebuilt\Universal Windows\x86\Debug\*.dll">
