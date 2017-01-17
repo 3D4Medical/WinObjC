@@ -195,15 +195,17 @@ char* CPathMapper::MappedPath() {
 }
 
 CPathMapper::CPathMapper(const char* path) {
-    char relativePath[4096];
-    strcpy_s(relativePath, "");
+    if (path != nullptr) {
+        char relativePath[4096];
+        strcpy_s(relativePath, "");
 
-    if (path[0] != '/') {
-        appendPath(relativePath, currentDir);
+        if (path[0] != '/') {
+            appendPath(relativePath, currentDir);
+        }
+        appendPath(relativePath, path);
+        fixedValid = fixPath(fixedPath, relativePath);
+        mappedValid = convertPath(mappedPath, fixedPath);
     }
-    appendPath(relativePath, path);
-    fixedValid = fixPath(fixedPath, relativePath);
-    mappedValid = convertPath(mappedPath, fixedPath);
 }
 
 void ScanAssets() {
