@@ -127,6 +127,13 @@ all arguments must be non-NULL */
 CF_EXPORT
 CFArrayRef CFPreferencesCopyKeyList(CFStringRef applicationID, CFStringRef userName, CFStringRef hostName);
 
+#if DEPLOYMENT_TARGET_WINDOWS
+//WINOBJC: Method to convert CFStringRef string into
+//characters array with specified encoding.
+//Returning characters array must be freed
+CF_EXPORT
+char * CFPreferencesStringToCString(CFStringRef aString, CFStringEncoding encoding);
+#endif
 
 CF_EXTERN_C_END
 CF_IMPLICIT_BRIDGING_DISABLED

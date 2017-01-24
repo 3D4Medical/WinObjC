@@ -1,4 +1,4 @@
-//******************************************************************************
+﻿//******************************************************************************
 //
 // Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 //
@@ -42,6 +42,37 @@ static void testReplacePercentEscapes(CFStringRef expected, CFStringRef string, 
                               0));
 }
 
+static void testGetFileSystemRepresentation(const char* pathData, CFStringEncoding encoding) {
+    CFStringRef expectedPath = CFStringCreateWithCString(kCFAllocatorSystemDefault, pathData, encoding);
+
+    // Create URL using path string
+    CFURLRef url = CFURLCreateWithFileSystemPath(nullptr, expectedPath, kCFURLWindowsPathStyle, true);
+
+    // Fill buffer with the file system's native representation of
+    // url's path.
+    CFIndex pathSize = 262;
+    char cPath[pathSize];
+    Boolean success = CFURLGetFileSystemRepresentation(url, true, (unsigned char*)cPath, pathSize);
+
+    // Validate if operation completed successfully
+    ASSERT_TRUE(success != false);
+
+    // Convert characters to string using encoding of expected path string
+    CFStringRef actualPath = CFStringCreateWithCString(kCFAllocatorSystemDefault, cPath, encoding);
+
+    // Validate if strings have the same length
+    CFIndex actualLength = CFStringGetLength(actualPath);
+    CFIndex expectedLength = CFStringGetLength(expectedPath);
+    ASSERT_EQ(expectedLength, actualLength);
+
+    // Validate if strings are the same
+    for (int i = 0; i < actualLength; i++) {
+        ASSERT_EQ(pathData[i], cPath[i]);
+    }
+
+    ASSERT_EQ(kCFCompareEqualTo, CFStringCompare(expectedPath, actualPath, 0));
+}
+
 // Asserts string equality, then releases the latter string
 static void compareAndRelease(CFStringRef expected, CFStringRef actual) {
     if (expected == nullptr) {
@@ -53,6 +84,13 @@ static void compareAndRelease(CFStringRef expected, CFStringRef actual) {
     if (actual != nullptr) {
         CFRelease(actual);
     }
+}
+
+TEST(CFURL, GetFileSystemRepresentation) {
+    // English
+    const char* cPath = "C:\\Users\\Maurice FitzGerald\\AppData\\Local";
+    testGetFileSystemRepresentation(cPath, kCFStringEncodingASCII);
+    testGetFileSystemRepresentation(cPath, kCFStringEncodingUTF8);
 }
 
 TEST(CFURL, CreateStringByAddingPercentEscapes) {
