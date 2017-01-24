@@ -175,6 +175,24 @@ static unsigned long __CFSafeLaunchLevel = 0;
 // WINOBJC: File not available to appcontainer apps // #include <shfolder.h>
 #define CSIDL_APPDATA 0x001a
 
+//WINOBJC: Method to convert CFStringRef string into
+//characters array with specified encoding.
+//Returning characters array must be freed
+char * CFPreferencesStringToCString(CFStringRef aString, CFStringEncoding encoding) {
+	if (aString == NULL) {
+		return NULL;
+	}
+	CFIndex length = CFStringGetLength(aString);
+	CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, encoding) + 1;
+	char *buffer = (char *)malloc(maxSize);
+	if (CFStringGetCString(aString, buffer, maxSize, encoding)) {
+		return buffer;
+	} else {
+		free(buffer); // If we failed
+		return NULL;
+	}
+}
+
 #endif
 
 static CFURLRef _preferencesDirectoryForUserHostSafetyLevel(CFStringRef userName, CFStringRef hostName, unsigned long safeLevel) {
@@ -189,12 +207,21 @@ if (completePath) {
     // append "Preferences\" and make the CFURL
     CFStringAppend(completePath, CFSTR("Preferences\\"));
     url = CFURLCreateWithFileSystemPath(alloc, completePath, kCFURLWindowsPathStyle, true);
-
-	char cPath[CFMaxPathSize];
-	if (CFURLGetFileSystemRepresentation(url, true, (unsigned char *)cPath, CFMaxPathSize)) {
-		success = _CFCreateDirectory(cPath);
+	
+	//Convert to char array
+	//try fast convert using system encoding
+	const char *buffer = CFStringGetCStringPtr(completePath, CFStringFileSystemEncoding());
+	if (buffer == NULL) {
+		//try to convert using UTF8 encoding
+		char *cPath = CFPreferencesStringToCString(completePath, kCFStringEncodingUTF8);
+		if (cPath != NULL) {
+			success = _CFCreateDirectory(cPath);// WINOBJC: ensure directory exists
+		}
+		free(cPath);
+	} else {
+		success = _CFCreateDirectory(buffer);// WINOBJC: ensure directory exists
 	}
-
+	
     CFRelease(completePath);
 }
 
