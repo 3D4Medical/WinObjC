@@ -87,10 +87,27 @@ static void compareAndRelease(CFStringRef expected, CFStringRef actual) {
     }
 }
 
-TEST(CFURL, GetFileSystemRepresentation) {
+TEST(CFURL, GetFileSystemRepresentationEnglishUTF16) {
     //English
 	const char *cPath = "C:\\Users\\Maurice FitzGerald\\AppData\\Local";
-	testGetFileSystemRepresentation(cPath, kCFStringEncodingASCII);
+	testGetFileSystemRepresentation(cPath, kCFStringEncodingUTF16);
+}
+
+TEST(CFURL, GetFileSystemRepresentationEnglishUTF8) {
+    //English
+	const char *cPath = "C:\\Users\\Maurice FitzGerald\\AppData\\Local";
+	testGetFileSystemRepresentation(cPath, kCFStringEncodingUTF8);	
+}
+
+TEST(CFURL, GetFileSystemRepresentationEnglishRussianUTF16) {
+    //English and Russian
+	const char *cPath = "C:\\Users\\Аленький цветочек\\AppData\\Local";
+	testGetFileSystemRepresentation(cPath, kCFStringEncodingUTF16);	
+}
+
+TEST(CFURL, GetFileSystemRepresentationEnglishRussianUTF8) {
+    //English and Russian
+	const char *cPath = "C:\\Users\\Аленький цветочек\\AppData\\Local";
 	testGetFileSystemRepresentation(cPath, kCFStringEncodingUTF8);	
 }
 

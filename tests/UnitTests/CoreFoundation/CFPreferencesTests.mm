@@ -46,12 +46,6 @@ static void testPreferencesStringToCString(const char *cBuffer,
 //Validate if string containing plain English
 //characters converts properly 
 //when use different encodings
-TEST(CFPreferences, ConvertEnglishASCIIStringToCString) {
-    //English
-	const char *cPath = "C:\\Users\\Maurice FitzGerald\\AppData\\Local";
-	testPreferencesStringToCString(cPath, kCFStringEncodingASCII);
-}
-
 TEST(CFPreferences, ConvertEnglishUTF8StringToCString) {
     //English
 	const char *cPath = "C:\\Users\\Maurice FitzGerald\\AppData\\Local";
@@ -67,12 +61,6 @@ TEST(CFPreferences, ConvertEnglishUTF16StringToCString) {
 //Validate if string containing mix of English and Russian
 //characters converts properly 
 //when use different encodings
-TEST(CFPreferences, ConvertEnglishRussianASCIIStringToCString) {
-    //English and Russian
-	const char *cPath = "C:\\Users\\Корней Чуковский\\AppData\\Local";
-	testPreferencesStringToCString(cPath, kCFStringEncodingASCII);
-}
-
 TEST(CFPreferences, ConvertEnglishRussianUTF8StringToCString) {
      //English and Russian
 	const char *cPath = "C:\\Users\\Корней Чуковский\\AppData\\Local";
@@ -88,13 +76,6 @@ TEST(CFPreferences, ConvertEnglishRussianUTF16StringToCString) {
 //Validate if string containing mix of English and Chinese
 //characters converts properly 
 //when use different encodings
-TEST(CFPreferences, ConvertEnglishChineseASCIIStringToCString) {
-    //English and Chinese (word in chinese means 'brazen penguin')
-
-	const char *cPath = "C:\\Users\\厚顏無恥的企鵝\\AppData\\Local";
-	testPreferencesStringToCString(cPath, kCFStringEncodingASCII);
-}
-
 TEST(CFPreferences, ConvertEnglishChineseUTF8StringToCString) {
      //English and Chinese
 	const char *cPath = "C:\\Users\\厚顏無恥的企鵝\\AppData\\Local";
@@ -110,12 +91,6 @@ TEST(CFPreferences, ConvertEnglishChineseUTF16StringToCString) {
 //Validate if string containing mix of English and Arabic
 //characters converts properly 
 //when use different encodings
-TEST(CFPreferences, ConvertEnglishArabicASCIIStringToCString) {
-    //English and Arabic (word in arabic means 'brazen penguin')
-	const char *cPath = "C:\\Users\\البطريق وقحة\\AppData\\Local";
-	testPreferencesStringToCString(cPath, kCFStringEncodingASCII);
-}
-
 TEST(CFPreferences, ConvertEnglishArabicUTF8StringToCString) {
      //English and Arabic
 	const char *cPath = "C:\\Users\\البطريق وقحة\\AppData\\Local";
