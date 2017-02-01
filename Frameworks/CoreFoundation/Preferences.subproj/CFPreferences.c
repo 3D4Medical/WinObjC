@@ -216,8 +216,8 @@ if (completePath) {
 		char *cPath = CFPreferencesStringToCString(completePath, kCFStringEncodingUTF8);
 		if (cPath != NULL) {
 			success = _CFCreateDirectory(cPath);// WINOBJC: ensure directory exists
-		}
-		free(cPath);
+			free(cPath);
+		}		
 	} else {
 		success = _CFCreateDirectory(buffer);// WINOBJC: ensure directory exists
 	}
